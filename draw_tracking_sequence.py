@@ -3,6 +3,8 @@ import numpy as np
 import os
 import re
 
+(major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.')
+
 jpg_pattern = re.compile('\w*\.jpg')
 number_pattern = re.compile('\w*\.jpg')
 
@@ -14,9 +16,25 @@ all_files = [ os.path.join(basedir,i) for i in os.listdir(basedir) if jpg_patter
 file_obj  = open(txt_filename, 'r')
 
 tracker_types = ['BOOSTING', 'MIL','KCF', 'TLD', 'MEDIANFLOW', 'GOTURN']
-tracker_type = tracker_types[5]
+tracker_type = tracker_types[2]
 
-tracker = cv2.Tracker_create(tracker_type)
+
+if int(minor_ver) < 3:
+    tracker = cv2.Tracker_create(tracker_type)
+else:
+    if tracker_type == 'BOOSTING':
+        tracker = cv2.TrackerBoosting_create()
+    if tracker_type == 'MIL':
+        tracker = cv2.TrackerMIL_create()
+    if tracker_type == 'KCF':
+        tracker = cv2.TrackerKCF_create()
+    if tracker_type == 'TLD':
+        tracker = cv2.TrackerTLD_create()
+    if tracker_type == 'MEDIANFLOW':
+        tracker = cv2.TrackerMedianFlow_create()
+    if tracker_type == 'GOTURN':
+        tracker = cv2.TrackerGOTURN_create()
+
 
 for idx,filename in enumerate(all_files):
 
