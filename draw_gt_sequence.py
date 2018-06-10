@@ -3,6 +3,8 @@ import numpy as np
 import os
 import re
 
+# This code only draws the images and BB
+
 jpg_pattern = re.compile('\w*\.jpg')
 number_pattern = re.compile('\w*\.jpg')
 
@@ -26,10 +28,11 @@ for filename in all_files:
 
     cv2.rectangle(img,(x0,y0),(x1,y1),(0,0,255),2)
 
-    cv2.imshow('teste',img)
+    cv2.imshow('GT',img)
 
     a = cv2.waitKey(20) & 0xFF
     if a == ord('q'):
         break
 
-file_obj.close()        
+file_obj.close()       
+cv2.destroyAllWindows() 
