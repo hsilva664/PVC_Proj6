@@ -4,8 +4,8 @@ import os
 import re
 import sys
 from math import sqrt
-kalman = cv2.KalmanFilter(4,2)
-kalman = cv2.KalmanFilter(2, 1, 0)
+kalman = cv2.KalmanFilter(4, 2)
+
 #RECTANGLE FUNCTIONS
 #Inputs should be (x0,y0,x1,y1) = upper left and lower right
 #Shape should be (lines,cols) (NOT (width,height)=(cols,lines) )
@@ -71,43 +71,34 @@ def initialize_tracker(minor_ver, tracker_type):
 
 def init_kalman(x,y,x2,y2):
     global kalman
-    state = 0.1 * np.random.randn(2, 1)
+    kalman.measurementMatrix = np.array([[1, 0, 0, 0],
+                                        [0, 1, 0, 0]], np.float32)
 
-    kalman.transitionMatrix = np.array([[1., 1.], [0., 1.]])
-    kalman.measurementMatrix = 1. * np.ones((1, 2))
-    kalman.processNoiseCov = 1e-5 * np.eye(2)
-    kalman.measurementNoiseCov = 1e-1 * np.ones((1, 1))
-    kalman.errorCovPost = 1. * np.ones((2, 2))
-    kalman.statePost = 0.1 * np.random.randn(2, 1)
-    return state
+    kalman.transitionMatrix = np.array([[1, 0, 1, 0],
+                                        [0, 1, 0, 1],
+                                        [0, 0, 1, 0],
+                                        [0, 0, 0, 1]], np.float32)
 
-def kalman_filter(state,x,y,x2,y2):
+    kalman.processNoiseCov = np.array([[1, 0, 0, 0],
+                                       [0, 1, 0, 0],
+                                       [0, 0, 1, 0],
+                                       [0, 0, 0, 1]], np.float32) * 0.03
+    measurement = np.array((4, 2), np.float32)
+    prediction = np.zeros((4, 2), np.float32)
+    return measurement,prediction
+
+def kalman_filter(val1,val2):
     global kalman
-    #prediction = cv2.KalmanPredict(kalman)
+
+    val = int(val1), int(val2)
+    val = np.asarray(val, dtype=np.float32)
+    kalman.correct(val)
     prediction = kalman.predict()
-    measurement = kalman.measurementNoiseCov * np.random.randn(1, 1)
+    #print (kalman.statePre.shape)
+    #print val1,val2
+    #print prediction
+    return prediction
 
-    # generate measurement
-    measurement = np.dot(kalman.measurementMatrix, state) + measurement
-    kalman.correct(measurement)
-
-    process_noise = sqrt(kalman.processNoiseCov[0,0]) * np.random.randn(2, 1)
-    state = np.dot(kalman.transitionMatrix, state) + process_noise
-    return state,process_noise,measurement
-    #kalman_prediction = cv2.KalmanPredict(kalman)
-    #rightPoints = cv2.CreateMat(2, 2, cv.CV_32FC1)
-    #rightPoints[0,0]=x
-    #rightPoints[1,0]=y
-    #rightPoints[0,1]=x2
-    #rightPoints[1,1]=y2
-
-    #kalman.state_pre[0,0]  = x
-    #kalman.state_pre[1,0]  = y
-    #kalman.state_pre[2,0]  = x2
-    #kalman.state_pre[3,0]  = y2
-
-    #return cv2.KalmanCorrect(kalman, rightPoints)
-    return
 #MAIN FUNCTION
 def run(args):
 
@@ -150,9 +141,9 @@ def run(args):
 
         #Print progress percentage
         if not draw:
-            #os.system('clear')
-            #print( "%s: %f%%" % (out_txt, (float(idx + 1)/ len(all_files) ) * 100) )
-            print "oi"
+            os.system('clear')
+            print( "%s: %f%%" % (out_txt, (float(idx + 1)/ len(all_files) ) * 100) )
+
         img = cv2.imread(filename, cv2.IMREAD_COLOR)
 
         #Read coordinates
@@ -174,7 +165,9 @@ def run(args):
             #If previous interactions failed, reinitialize tracker
             if tracker_initialization_pending:
                 tracker = initialize_tracker(minor_ver, tracker_type)
-                state = init_kalman(x0,y0,x1,y1)
+                #state = init_kalman(x0,y0,x1,y1)
+                measurement,prediction = init_kalman(x0,y0,x1,y1)
+
                 # To avoid generating exceptions
                 # (if you try to init a tracker with negative coords it raises exceptions)
                 # (GT txt contains negative coords)
@@ -213,12 +206,9 @@ def run(args):
                 if valid_frame:
                     ret1 = (p1[0], p1[1], p2[0], p2[1]) # Predicted
                     ret2 = (x0,y0,x1,y1) # GT BB
-
-###############################
-                    prediction = kalman_filter(state,p1[0], p1[1], p2[0], p2[1]) ## Kalman filter
-                    print prediction
-
-
+                    xprediction = kalman_filter(p1[0], p2[0]) ## Kalman filter on X axis
+                    yprediction = kalman_filter(p1[1], p2[1]) ## Kalman filter on Y axis
+                    ret1 = (int(xprediction[0]),int(yprediction[0]),int(xprediction[1]),int(yprediction[1]))
                     shape = img.shape
                     un = union( ret1, ret2, shape )
                     inter = intersection( ret1, ret2, shape )
