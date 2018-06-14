@@ -20,7 +20,7 @@ def union(a,b, imshape):
 
 
     #Draw them together
-    zeroed = np.zeros(imshape, dtype = np.bool)    
+    zeroed = np.zeros(imshape, dtype = np.bool)
     zeroed[ a[1]:a[3], a[0]:a[2] ] = True
     zeroed[ b[1]:b[3], b[0]:b[2] ] = True
 
@@ -39,10 +39,10 @@ def intersection(a,b, imshape):
     b = (b[0] + offset_j, b[1] + offset_i, b[2] + offset_j, b[3] + offset_i)
 
     #Draw them in separate images
-    zeroed_one = np.zeros(imshape, dtype = np.bool)    
+    zeroed_one = np.zeros(imshape, dtype = np.bool)
     zeroed_one[ a[1]:a[3], a[0]:a[2] ] = True
 
-    zeroed_two = np.zeros(imshape, dtype = np.bool)    
+    zeroed_two = np.zeros(imshape, dtype = np.bool)
     zeroed_two[ b[1]:b[3], b[0]:b[2] ] = True
 
     #Intersect them
@@ -76,7 +76,7 @@ def run(args):
     (major_ver, minor_ver, subminor_ver) = (cv2.__version__).split('.') #version
 
     jpg_pattern = re.compile('\w*\.jpg') #regex pattern to filter jpg
-    
+
     basedir = args[1]  #'PD8-files/car1' -> directory where to read images from
     txt_filename = args[2] #'PD8-files/gtcar1.txt' -> directory where to read BB from
 
@@ -146,7 +146,7 @@ def run(args):
                 c_y1 = min(max(y1, 0), height - 1)
 
                 # Init tracker
-                ok = tracker.init(img, (c_x0,c_y0,c_x1-c_x0,c_y1-c_y0) )            
+                ok = tracker.init(img, (c_x0,c_y0,c_x1-c_x0,c_y1-c_y0) )
                 tracker_initialization_pending = False #Suspend pending initialization
                 skip_tracking = True #Skip tracking on this frame (start on next)
         else:
@@ -163,7 +163,7 @@ def run(args):
 
             # Calculate Frames per second (FPS)
             fps = cv2.getTickFrequency() / (cv2.getTickCount() - timer)
-        
+
             if ok: # Draw bounding box if tracking succeeds
                 fps_list.append(fps)
                 # Draw tracking BB
@@ -186,17 +186,17 @@ def run(args):
                     #If boxes do not overlap, count as failure
                     if jacc == 0.0:
                         F = F + 1
-                        cv2.putText(img, "Tracking failure detected", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,0,255),1)        
-                        tracker_initialization_pending = True                                       
-                    
+                        cv2.putText(img, "Tracking failure detected", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,0,255),1)
+                        tracker_initialization_pending = True
+
 
             else : # Tracker could not return BB
                 if valid_frame: #If GT is present, count as failure and reinitialize tracker on next frame
                     F = F + 1
-                    cv2.putText(img, "Tracking failure detected", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,0,255),1)        
+                    cv2.putText(img, "Tracking failure detected", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,0,255),1)
                     tracker_initialization_pending = True
                 else: #If GT is not present, ignore (the tracker does not commit mistakes if there is no GT)
-                    cv2.putText(img, "Tracking failure detected (but frame is invalid)", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,255,255),1)        
+                    cv2.putText(img, "Tracking failure detected (but frame is invalid)", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,255,255),1)
 
         elif skip_tracking:
             skip_tracking = False #Suspend skip tracking on next frames
@@ -209,7 +209,7 @@ def run(args):
             if a == ord('q'):
                 break
 
-    file_obj.close()  
+    file_obj.close()
 
 
     #Calculate metrics
@@ -220,8 +220,7 @@ def run(args):
     std_jacc = np.std(np_jacc_list)
 
     mean_fps = np.mean(np_fps_list)
-    std_fps = np.std(np_fps_list)    
-
+    std_fps = np.std(np_fps_list)
     M = F/N
     S = 30
     R = np.exp(-1*S*M)
@@ -236,4 +235,4 @@ def run(args):
     cv2.destroyAllWindows()
 
 if __name__ == "__main__":
-    run(sys.argv)    
+    run(sys.argv)

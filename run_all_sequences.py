@@ -8,9 +8,9 @@ txt_filename_list = ['PD8-files/gtcar1.txt','PD8-files/gtcar2.txt']
 
 tracker_types = ['BOOSTING', 'MIL','KCF', 'TLD', 'MEDIANFLOW']
 # GOTURN does not work (bugged implementation)
-
+tracker_types = ['KCF']
 draw = "False"
-
+#draw = "True"
 for i in range(len(basedir_list)):
     basedir = basedir_list[i]
     txt_filename = txt_filename_list[i]

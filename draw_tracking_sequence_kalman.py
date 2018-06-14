@@ -123,10 +123,9 @@ def run(args):
     out_file_obj  = open(out_txt, 'w') #file obj where to write results
 
     draw = (args[5] == "True") #whether to draw or simply show pct
-
     # MAIN LOOP VARIABLES
-    N = 0
-    F = 0
+    N = 0.0
+    F = 0.0
 
     tracker_initialization_pending = True #flag to reinitialize tracker
 
@@ -152,7 +151,7 @@ def run(args):
 
         if 'NaN' not in split: #If there is no NaN, prepare to draw GT BB
             valid_frame = True #Frame is valid
-            N = N + 1
+            N = N + 1.0
 
             #BB coordinates
             x0 = int(float(split[0]))
@@ -206,9 +205,11 @@ def run(args):
                 if valid_frame:
                     ret1 = (p1[0], p1[1], p2[0], p2[1]) # Predicted
                     ret2 = (x0,y0,x1,y1) # GT BB
+
                     xprediction = kalman_filter(p1[0], p2[0]) ## Kalman filter on X axis
                     yprediction = kalman_filter(p1[1], p2[1]) ## Kalman filter on Y axis
                     ret1 = (int(xprediction[0]),int(yprediction[0]),int(xprediction[1]),int(yprediction[1]))
+
                     shape = img.shape
                     un = union( ret1, ret2, shape )
                     inter = intersection( ret1, ret2, shape )
@@ -217,16 +218,16 @@ def run(args):
 
                     jacc_list.append(jacc)
 
-                    #If boxes do not overlap, count as failure
+                    #If boxes does not overlap, count as failure
                     if jacc == 0.0:
-                        F = F + 1
+                        F = F + 1.0
                         cv2.putText(img, "Tracking failure detected", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,0,255),1)
                         tracker_initialization_pending = True
 
 
             else : # Tracker could not return BB
                 if valid_frame: #If GT is present, count as failure and reinitialize tracker on next frame
-                    F = F + 1
+                    F = F + 1.0
                     cv2.putText(img, "Tracking failure detected", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,0,255),1)
                     tracker_initialization_pending = True
                 else: #If GT is not present, ignore (the tracker does not commit mistakes if there is no GT)
@@ -254,6 +255,7 @@ def run(args):
 
     mean_fps = np.mean(np_fps_list)
     std_fps = np.std(np_fps_list)
+
 
     M = F/N
     S = 30
