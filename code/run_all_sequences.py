@@ -2,8 +2,8 @@ import os
 import sys
 import draw_tracking_sequence
 
-basedir_list = ['PD8-files/car1','PD8-files/car2']
-txt_filename_list = ['PD8-files/gtcar1.txt','PD8-files/gtcar2.txt']
+basedir_list = ['PD8-files/car1','PD8-files/car2','PD8-files/Volkswagen']
+txt_filename_list = ['PD8-files/gtcar1.txt','PD8-files/volkswagen.txt']
 
 
 tracker_types = ['BOOSTING', 'MIL','KCF', 'TLD', 'MEDIANFLOW']
