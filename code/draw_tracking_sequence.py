@@ -95,8 +95,8 @@ def run(args):
     draw = (args[5] == "True") #whether to draw or simply show pct
 
     # MAIN LOOP VARIABLES
-    N = 0
-    F = 0
+    N = 0.0
+    F = 0.0
 
     tracker_initialization_pending = True #flag to reinitialize tracker
 
@@ -122,7 +122,7 @@ def run(args):
 
         if 'NaN' not in split: #If there is no NaN, prepare to draw GT BB
             valid_frame = True #Frame is valid
-            N = N + 1
+            N = N + 1.0
 
             #BB coordinates
             x0 = int(float(split[0]))
@@ -185,7 +185,7 @@ def run(args):
 
                     #If boxes do not overlap, count as failure
                     if jacc == 0.0:
-                        F = F + 1
+                        F = F + 1.0
                         cv2.putText(img, "Tracking failure detected", (10,10), cv2.FONT_HERSHEY_SIMPLEX, 0.3,(0,0,255),1)
                         tracker_initialization_pending = True
 

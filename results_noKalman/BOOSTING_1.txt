@@ -1,3 +1,0 @@
-Mean Jacc: 0.564843, Std Jacc: 0.290225
-Mean FPS: 100.394814, Std FPS: 26.341578
-Robustness: 0.901292, Flaws: 30, Sequence: 8660
